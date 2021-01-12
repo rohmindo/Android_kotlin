@@ -1,0 +1,157 @@
+1. 리사이클러뷰에 사용할 데이터 클래스 정의
+코틀린 클래스 하나 만듬
+ex)
+package com.example.myapplication
+
+data class profile(var name:String,var content:String)
+
+2. xml 파일 하나 만듬
+ex)
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="horizontal"
+    android:layout_height="wrap_content">
+    <com.example.myapplication.RoundImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:id="@+id/imgtest"
+        android:src="@drawable/cc"
+
+        android:layout_gravity="center"
+
+        />
+    <LinearLayout
+        android:layout_gravity="center"
+        android:layout_weight="1"
+
+        android:layout_width="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="16dp"
+        android:layout_height="60dp">
+
+        <TextView
+            android:id="@+id/nametest"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="2dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="노민도"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+        <TextView
+            android:id="@+id/contenttest"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="1dp"
+            android:layout_weight="2"
+            android:text="경기도 수원시 아주대학교"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+    </LinearLayout>
+
+</LinearLayout>
+
+3. 어댑터 만듬
+package com.example.myapplication
+
+import android.graphics.drawable.Drawable
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+
+import com.bumptech.glide.Glide
+
+import androidx.appcompat.view.menu.ActionMenuItemView
+import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.item.view.*
+
+class CustomAdaptor : RecyclerView.Adapter<Holder>() {
+    var listData = mutableListOf<profile>()
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
+        var itemView=LayoutInflater.from(parent.context).inflate(R.layout.item,parent,false)
+        return Holder(itemView)
+
+    }
+
+    override fun getItemCount(): Int {
+        return listData.size
+    }
+
+    override fun onBindViewHolder(holder: Holder, position: Int) {
+        var profile = listData.get(position)
+        holder.setProfile(profile)
+    }
+}
+class Holder(itemView: View) : RecyclerView.ViewHolder(itemView){
+
+    init {
+        itemView.setOnClickListener {
+            //여기서 처리
+        }
+    }
+
+    fun setProfile(profile:profile){
+        //Glide.with(itemView).load("https://salonspace.s3.ap-northeast-2.amazonaws.com/1610097821332.jpg").error(R.drawable.cc).into(itemView.imgtest)
+        itemView.imgtest.setRectRadius(80f)
+        itemView.imgtest.setImageResource(R.drawable.cc)
+        //itemView.imgtest.set
+        itemView.nametest.text= profile.name
+        itemView.contenttest.text=profile.content
+    }
+}
+
+4. 메인 액티비티에 추가
+
+package com.example.myapplication
+
+import android.app.Activity
+import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.LinearLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.android.synthetic.main.activity_main.*
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        //테스트 데이터 추가
+        var data:MutableList<profile> = mutableListOf()
+        var data1:profile= profile("노민도","경기도 수원시 아주대")
+        var data2:profile=profile("강지인","경기도 수원시 경기대")
+
+
+        data.add(data1)
+        data.add(data2)
+
+        // 어댑터 생성
+        var adaptor:CustomAdaptor= CustomAdaptor()
+        // 어댑터에 데이터 전달
+        adaptor.listData=data
+        // 화면의 있는 리사이클러 뷰에 어댑터 연결
+        recycler.adapter=adaptor
+        // 레이아웃 매니저 연결
+        recycler.layoutManager=LinearLayoutManager(this)
+
+
+
+    }
+
+
+}
+
+추가적으로 glide(url로 이미지 받아오기위해) 쓰려면
+
+    implementation 'com.github.bumptech.glide:glide:4.9.0'
+추가후 사용
+
+

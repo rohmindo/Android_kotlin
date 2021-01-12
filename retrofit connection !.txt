@@ -1,0 +1,79 @@
+1. gradle에 추가
+
+위에는 buildtype밑에
+compileOptions{
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+추가후 
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-scalars:2.9.0'
+추가
+
+2. 받아야 하는 json형식의 data를 코틀린 데이터로 저장
+new -> kotlin data from class
+
+3. interface 및 코틀린 클래스 작성
+
+package com.example.myapplication.data
+
+import retrofit2.Call
+import retrofit2.http.*
+
+class connectusingretrofit {
+    companion object{
+        val Domain = "http://13.125.255.81/"
+    }
+}
+interface ConnectService{
+    @FormUrlEncoded
+    @POST("{phpname}")
+    fun getRoomList_oneChattingRoom(
+        @Path("phpname") Phpname:String,
+        @Field("id") name: String
+    ): Call<information>
+
+}
+
+
+4. 메인 액티비티에서 사용
+
+fun connectphp(){
+        val retrofit = Retrofit.Builder()
+            .baseUrl(connectusingretrofit.Domain)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        var service=retrofit.create(ConnectService::class.java)
+
+        val PHPName = "get_designer_info.php"
+        service
+            .getRoomList_oneChattingRoom(PHPName,"rr@rr")
+            .enqueue(object : Callback<information>{
+                override fun onFailure(call: Call<information>, t: Throwable) {
+                    Toast.makeText(baseContext,"데이터읽기 실패",Toast.LENGTH_LONG).show()
+                }
+
+                override fun onResponse(call: Call<information>, response: Response<information>) {
+
+                    Toast.makeText(baseContext,"데이터읽기 성공",Toast.LENGTH_LONG).show()
+                    var test=response.body() as information
+                    var name=test.name
+                    var des=test.additional_desciption
+                    var des1=test.description
+
+                    Log.d("testdata",des1)
+
+                }
+            })
+
+알아서 json 파싱도 됨.
+information객체가 여러개면 책 634쪽처럼 맨처음
+json으로 만든 data class에 여러개로 나뉘므로 이걸 이용해서 파싱
+
+
+
+    }
+
+

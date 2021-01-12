@@ -1,0 +1,94 @@
+package com.example.myapplication
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.util.Log
+import kotlinx.android.synthetic.main.activity_h_t_t_p_connection.*
+import kotlinx.android.synthetic.main.activity_main.*
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
+import java.lang.Exception
+import java.lang.StringBuilder
+import java.net.HttpURLConnection
+import java.net.URL
+import kotlin.concurrent.thread
+
+1.  fun response에서 처리
+class HTTPConnectionActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_h_t_t_p_connection)
+        HttpCheckId()
+
+    }
+    fun HttpCheckId(){
+
+        // URL을 만들어 주고
+        val url = URL("http://13.125.255.81/get_designer_info.php")
+
+        //데이터를 담아 보낼 바디를 만든다
+        val requestBody : RequestBody = FormBody.Builder()
+            .add("id","rr@rr")
+            .build()
+        
+        // OkHttp Request 를 만들어준다.
+        val request = Request.Builder()
+            .url(url)
+            .post(requestBody)
+            .build()
+
+        // 클라이언트 생성
+        val client = OkHttpClient()
+
+        Log.d("전송 주소 ","http://13.125.255.81/get_designer_info.php")
+
+        // 요청 전송
+        client.newCall(request).enqueue(object : Callback {
+
+            override fun onResponse(call: Call, response: Response) {
+                Log.d("요청","요청 완료")
+                //Log.d("data",response?.body()?.string()+"")
+                //response 는 String 변수
+                var t: String? = response?.body?.string()
+
+                //val t = "\ub178\ubbfc\ub3c4"
+               // val utf8String= String(t.toByteArray(Charsets.ISO_8859_1),Charsets.UTF_8)
+                //val utf8String = String(test.toByteArray(Charsets.ISO_8859_1), Charsets.UTF_8)
+                Log.d("data",t+"")
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                Log.d("요청","요청 실패 ")
+            }
+
+        })
+
+    }
+}
+
+2. 날라온 response?.doby?.string()에 한글이 포함된 경우
+유니코드로 날라올수 있다.
+따라서 java class 파일 하나 생성
+package com.example.myapplication;
+
+public class test {
+    public static String fromUnicode( String uni){
+        StringBuffer str = new StringBuffer();
+        for( int i= uni.indexOf("\\u") ; i > -1 ; i = uni.indexOf("\\u") ){// euc-kr(%u), utf-8(//u)
+            str.append( uni.substring( 0, i ) );
+            str.append( String.valueOf( (char)Integer.parseInt( uni.substring( i + 2, i + 6 ) ,16) ) );
+            uni = uni.substring( i +6);
+        }
+        str.append( uni );
+        return str.toString();
+    }
+
+}
+본문에서는
+var str2=test.fromUnicode(str)
+        Log.d("data",str2)
+이런식으로 사용하면 된다.
