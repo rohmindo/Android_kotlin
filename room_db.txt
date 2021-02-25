@@ -1,0 +1,43 @@
+1. build.gradle 에 추가
+Room입력하고 alt-enter 후 
+코틀린 사용은 annotation을 kapt로 바꾸고
+apply plugin: 'kotlin-kapt' 추가
+
+2. data class 생성 (사용할 db data형식)
+@Entity
+data class Todo(
+    val title : String
+){
+    @PrimaryKey(autoGenerate = true) var id:Int=0
+}
+
+3. Dao 생성(interface)
+interface TodoDao {
+    @Query("SELECT title FROM Todo")
+    fun getAll() : List<String>
+
+    @Insert
+    fun insert(todo:Todo)
+
+    @Update
+    fun update(todo:Todo)
+
+    @Delete
+    fun delete(todo:Todo)
+
+}
+
+4. 
+@Database(entities = [Todo::class], version = 1)
+    abstract class AppDatabase : RoomDatabase() {
+        abstract fun TodoDao(): TodoDao
+    }
+그대로 복붙해서 넣기
+
+5. 
+val db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "database-name"
+        ).allowMainThreadQueries()
+            .build()
+복붙해서 사용
