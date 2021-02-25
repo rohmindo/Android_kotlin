@@ -1,0 +1,31 @@
+원래 안드로이드
+show.text=db.TodoDao().getAll().toString()
+btn.setOnClickListener {
+            db.TodoDao().insert(Todo(input.getText().toString()))
+            show.text=db.TodoDao().getAll().toString()
+        }
+위의 예시처럼 db값이나 data값이 변경될때마다 처리를 해줘야된다.
+이를위 해 livedata 나옴
+livedata란 값이 변경됨을 지속적으로 observe하고 변경이 되었을때
+observer에서의 내용을 처리
+
+
+1. livedata로 감싸줌
+@Query("SELECT title FROM Todo")
+    fun getAll() : LiveData<List<String>>
+
+
+2. 특정 livedata로 감싸준걸 observe
+
+3. observer 객체 만듬
+
+db.TodoDao().getAll().observe(this, Observer { todos ->
+            show.text=todos.toString()
+        }
+)
+
+        btn.setOnClickListener {
+            db.TodoDao().insert(Todo(input.getText().toString()))
+        }
+이렇게 처리가능 원래는 onclicklistener안에 새롭게 갱신하는코드가
+들어갓어야함
