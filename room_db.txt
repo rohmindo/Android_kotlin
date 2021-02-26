@@ -41,3 +41,17 @@ val db = Room.databaseBuilder(
         ).allowMainThreadQueries()
             .build()
 복붙해서 사용
+
+
+6. 원래는 .allowMainThreadQueries() 사용 X
+DB 관련처리는 백그라운드에서 처리해야함
+JAVA에서는 어싱크테스트 사용
+코틀린에서는 코루틴 사용하면 편함
+implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.2.0' 추가
+
+
+lifecycleScope.launch(Dispatchers.IO) {
+                db.TodoDao().insert(Todo(input.getText().toString()))
+            }
+할려는 거에 lifecycleScope.launch(Dispatchers.IO) 로 감싸면됨
+DISPATCHER.IO는 백그라운드를 의미
