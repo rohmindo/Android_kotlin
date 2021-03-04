@@ -1,0 +1,54 @@
+1. 
+https://developer.android.com/jetpack/androidx/releases/lifecycle에 들어가서
+def lifecycle_version = "2.3.0"
+implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+추가
+
+https://developer.android.com/kotlin/ktx/extensions-list에 들어가서
+ implementation "androidx.activity:activity-ktx:1.2.0"추가
+
+2. java 1.8로 변경
+
+compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+  // For Kotlin projects
+  kotlinOptions {
+    jvmTarget = "1.8"
+  }
+
+3. 뷰모델 클래스 작성
+class MainViewModel(application: Application) : AndroidViewModel(application) {
+    private val db= Room.databaseBuilder(
+        application,
+        AppDatabase::class.java,"database-name"
+    ).build()
+
+    fun getAll(): LiveData<List<String>> {
+        return db.TodoDao().getAll()
+    }
+    fun insert(todo: Todo){
+        db.TodoDao().insert(todo)
+    }
+}
+
+4. 메인
+ val mainAndroidViewmd : MainViewModel by viewModels()
+(뷰모델 객체 생성)           (내가생성한 뷰모델 클래스이름)
+
+5. 사용
+mainAndroidViewmd.getAll().observe(this, Observer { todos ->
+            show.text=todos.toString()
+        }
+        )
+
+        btn.setOnClickListener {
+            lifecycleScope.launch(Dispatchers.IO) {
+                mainAndroidViewmd.insert(Todo(input.getText().toString()))
+            }
+        }
+등등
+6. kotlin 에서 suspend를 fun앞에 붙이면 반드시 백그라운드에서 실행 의미
+
+7. 뷰모델은 ui와 로직을 완전히 분리

@@ -1,0 +1,33 @@
+1. build.gradle에
+buildFeatures {
+        dataBinding true
+    }
+추가
+
+2. https://developer.android.com/topic/libraries/architecture/coroutines에 들어가서
+implements androidx.lifecycle:lifecycle-runtime-ktx:2.2.0 추가
+
+3. main함수
+val binding=DataBindingUtil.setContentView<ActivityMainBinding>(this,R.layout.activity_main)
+        binding.lifecycleOwner=this <- livedata 사용하기위해서
+val mainAndroidViewmd : MainViewModel by viewModels()
+        binding.viewModel=mainAndroidViewmd
+
+4. 뷰모델
+fun getAll(): LiveData<List<String>> {
+        return db.TodoDao().getAll()
+    }
+와관련된 xml은
+android:text="@{viewModel.todos.toString()}"
+
+fun insert(todo:String){
+        viewModelScope.launch(Dispatchers.IO){
+            db.TodoDao().insert(Todo(todo))
+        }
+
+    }
+과 관련된 xml은
+ android:text="@={viewModel.str}"
+android:onClick="@{() -> viewModel.insert(viewModel.str)}
+텍스트와 버튼
+온클릭까지도 xml내에서 ui와 data를 연결할 수 있다.
